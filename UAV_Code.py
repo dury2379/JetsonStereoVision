@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import atexit
 import sys
 import time
@@ -20,6 +21,7 @@ class Main:
                                                GPS_node=self.GPS,
                                                spread=float(conf_dict['DETECTION']['camera_sep']),
                                                fov=float(conf_dict['DETECTION']['camera_fov']),
+                                               threshold_fuse=conf_dict['DETECTION_FUSE'],
                                                flip=bool(conf_dict['DETECTION']['flip']))
         self.Network = Network((conf_dict['NETWORKING']['GROUND_STATION_IP'],
                                 conf_dict['NETWORKING']['GROUND_STATION_PORT']),

@@ -8,3 +8,5 @@ Jetson_Lib_23_11_8.zip
 *.conf
 !Configs/default.conf
 !Configs/Router_network.conf
+jetsonvenv/*
+.env

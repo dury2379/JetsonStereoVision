@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import time
 from threading import Thread
 from MavLink import MavLink
@@ -24,12 +25,12 @@ class Network:
         self.HUSKY_dict = HUSKY_dict
 
         print("NETWORKING:    GS dict", (self.GS_dict[0], int(self.GS_dict[1])))
-
-        self.GS = self.connect((self.GS_dict[0], int(self.GS_dict[1])))
+        print("NETWORKING:    HUSKY Dict", (self.HUSKY_dict[0], int(self.HUSKY_dict[1])))
+#        self.GS = self.connect((self.GS_dict[0], int(self.GS_dict[1])))
         self.HUSKY = self.connect((self.HUSKY_dict[0], int(self.HUSKY_dict[1])))
         time.sleep(0.3)
 
-        self.send_to_GS("DRONE")
+#        self.send_to_GS("DRONE")
         self.send_to_HUSKY("DRONE")
 
         self.is_rinning = True
@@ -41,21 +42,23 @@ class Network:
         last_log = 0.0
         persons_loc, detection_timestamp = self.detectNet.get_data()
         while self.is_rinning:
-            gs_received_data = self.receive_data(self.GS)
-            if gs_received_data == '1':
+#           gs_received_data = self.receive_data(self.GS)
+           gs_received_data = None 
+           if gs_received_data == '1':
                 print("NTWORKING:   Sending persons location (manual overwrite)")
                 self.last_cords_send_timestamp = time.time()
                 self.send_to_HUSKY(persons_loc)
-            if time.time() - last_log >= self.LOG_INTERVAL:
+           if time.time() - last_log >= self.LOG_INTERVAL:
                 last_log = time.time()
                 while not self.GPS.allow_read:
                     pass
-                self.send_to_GS(self.GPS.loc)
-            if persons_loc is not None \
+#                self.send_to_GS(self.GPS.loc)
+           if persons_loc is not None \
                     and self.last_cords_send_timestamp + self.cooldown < detection_timestamp:
                 print("\n!!!\n!!!\nNTWORKING:   Sending location to the HUSKY\n!!!\n!!!")
                 self.last_cords_send_timestamp = time.time()
                 self.send_to_HUSKY(persons_loc)
+
 
     def connect(self, IP_Port_dict: dict):
         soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -104,4 +107,4 @@ class Network:
         self.is_rinning = False
         self.thread.join()
         self.HUSKY.close()
-        self.GS.close()
+ #       self.GS.close()

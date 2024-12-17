@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
     This is a simple threshold fuse class. If value become greater that the threshold, flag is set to True.
     If the value is below/falls below the threshold value, flag is set to False. It has minimum and maximum values.
@@ -16,33 +17,18 @@
 
 
 class Fuse:
-    def __init__(self, threshold=5, reward=1, punishment=0.2, minimum=None, maximum=None, ):
-        self.t_hold = threshold
-        self.reward_val = reward
-        self.fine = punishment
-        if minimum is None:
-            self.minimum = threshold - (5 * reward)
-        else:
-            self.minimum = minimum
-        if maximum is None:
-            self.maximum = threshold + reward
-        else:
-            self.maximum = maximum
-        self.value = float(self.minimum)
-        self.flag = False
-
     def __init__(self, config_dict: dict):
         """
 
         :type config_dict: dict
         """
         if 'threshold' in config_dict:
-            self.t_hold = float(config_dict['threshold'])
+            self.t_hold = int(config_dict['threshold'])
         else:
             self.t_hold = 5
 
         if 'reward' in config_dict:
-            self.reward_val = float(config_dict['reward'])
+            self.reward_val = int(config_dict['reward'])
         else:
             self.reward_val = 1
 
@@ -52,12 +38,12 @@ class Fuse:
             self.fine = 0.2
 
         if 'minimum' in config_dict:
-            self.minimum = float(config_dict['minimum'])
+            self.minimum = int(config_dict['minimum'])
         else:
             self.minimum = 0
 
         if 'maximum' in config_dict:
-            self.maximum = float(config_dict['maximum'])
+            self.maximum = int(config_dict['maximum'])
         else:
             self.maximum = 6
         self.value = float(self.minimum)

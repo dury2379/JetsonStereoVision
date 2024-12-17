@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import os
 from datetime import datetime
 from threading import Thread
@@ -29,16 +30,21 @@ class Jetson_Camera:
         self.thread.start()
 
     def loop(self):
-        while self.alive:
-            img_local = self.video_input.Capture()
+        try:
+            while self.alive:
+               img_local = self.video_input.Capture()
+               if img_local is None:
+                  print("Error: No image captured.")
+                  continue
+               
+               self.allow_read = False
+               self.img = img_local
+               self.allow_read = True
 
-            self.allow_read = False
-            self.img = img_local
-            self.allow_read = True
-
-            jetson_utils.cudaDeviceSynchronize()
-            self.output.Render(img_local)
-
+               jetson_utils.cudaDeviceSynchronize()
+               self.output.Render(img_local)
+        except Exception as e:
+            print("Error: ", e)
     def is_thread_alive(self):
         return self.thread.isAlive()
 

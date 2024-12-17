@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """
     This class runs geolocation method inside a thread and provides a thread safe way of getting it into other
     threads. in order to safely get data from this class use getter methods: "get_person_loc()" "get_detection_time()"
@@ -9,10 +10,9 @@
 """
 
 import atexit
-import threading
 import time
 import sys
-from threading import Thread
+from threading import Thread, Lock
 from Jetson_Camera_2 import Jetson_Camera
 from MavLink import MavLink
 from DetectorThreadRunner import DetectorThreadRunner
@@ -26,20 +26,19 @@ class Detector:
         self.detection_timestamp = 0
         self.persons_cords = None
         self.logfile = open("Detector_last_log.log", "w")
-        print(threshold_fuse)
         self.t_runner = DetectorThreadRunner(Jetson_Camera(str(left_input), dir_name, left_save_name, flip),
                                              Jetson_Camera(str(right_input), dir_name, right_save_name, flip),
-                                             pitch=camera_pitch, spread=spread, fov=fov, t_fuse=threshold_fuse,
-                                             GPS_node=GPS_node, log_file=self.logfile)
+                                             pitch=camera_pitch, spread=spread, fov=fov, t_fuse=threshold_fuse, GPS_node=GPS_node,
+                                             log_file=self.logfile)
         if flip:
             self.t_runner.swap_cameras()
 
         self.isRunning = True
         self.thread = Thread(target=self.loop, args=())
-        self.t_lock = threading.Lock()
+        self.t_lock = Lock()
         self.thread.deamon = True
 
-        time.sleep(2.0)
+        time.sleep(10.0)
         self.thread.start()
 
     def loop(self):
@@ -92,5 +91,5 @@ if __name__ == '__main__':
     config_dict = Config(sys.argv[1])
     GPS = MavLink(config_dict.main_dict['MAVLINK']['directory'], config_dict.main_dict['MAVLINK']['baud'])
     fuse = Fuse(config_dict=config_dict.main_dict['DETECTION_FUSE'])
-    detector = Detector("0", "1", "test_left", "test_left", "./Recordings", GPS, 30, threshold_fuse=fuse, flip=True)
+    detector = Detector("0", "1", "test_left", "test_left", "./Recordings", fuse, GPS, 0, flip=True)
     atexit.register(kill, detector)
